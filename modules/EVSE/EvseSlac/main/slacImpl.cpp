@@ -65,7 +65,7 @@ void slacImpl::run() {
 
     callbacks.signal_dlink_ready = [this](bool value) { publish_dlink_ready(value); };
 
-    callbacks.signal_state = [this](const std::string& value) { publish_state(value); };
+    callbacks.signal_state = [this](const std::string& value) { publish_state(types::slac::string_to_state(value)); };
 
     callbacks.signal_error_routine_request = [this]() { publish_request_error_routine(nullptr); };
 

@@ -344,7 +344,8 @@ void car_simulatorImpl::subscribe_to_variables_on_init() {
     // subscribe slac_state
     if (!mod->r_slac.empty()) {
         const auto& slac = mod->r_slac.at(0);
-        slac->subscribe_state([this](const auto& state) { car_simulation->set_slac_state(state); });
+        slac->subscribe_state(
+            [this](const auto& state) { car_simulation->set_slac_state(types::slac::state_to_string(state)); });
     }
 
     // subscribe ev events

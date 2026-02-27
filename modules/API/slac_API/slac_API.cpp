@@ -15,6 +15,23 @@ namespace API_types_ext = ev_API_types::slac;
 namespace API_generic = ev_API_types::generic;
 using ev_API::deserialize;
 
+namespace {
+
+types::slac::State to_internal_state(API_types_ext::State state) {
+    switch (state) {
+    case API_types_ext::State::UNMATCHED:
+        return types::slac::State::UNMATCHED;
+    case API_types_ext::State::MATCHING:
+        return types::slac::State::MATCHING;
+    case API_types_ext::State::MATCHED:
+        return types::slac::State::MATCHED;
+    }
+
+    throw std::out_of_range("Unknown API slac::State value");
+}
+
+} // namespace
+
 void slac_API::init() {
     invoke_init(*p_main);
 
@@ -60,7 +77,7 @@ void slac_API::generate_api_var_state() {
     subscribe_api_topic("state", [=](const std::string& data) {
         API_types_ext::State val;
         if (deserialize(data, val)) {
-            p_main->publish_state(serialize(val));
+            p_main->publish_state(to_internal_state(val));
             return true;
         }
         return false;

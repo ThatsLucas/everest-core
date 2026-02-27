@@ -50,7 +50,7 @@ void ev_slacImpl::run() {
         } else if (value == "UNMATCHED") {
             publish_dlink_ready(false);
         }
-        publish_state(value);
+        publish_state(types::slac::string_to_state(value));
     };
 
     callbacks.log_debug = [](const std::string& text) { EVLOG_debug << "EvSlac: " << text; };
