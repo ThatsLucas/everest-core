@@ -7,7 +7,6 @@
 #include <dirent.h>
 #include <errno.h>
 #include <math.h>
-#include <unistd.h> // sleep
 
 #include "log.hpp"
 #include "tools.hpp"
@@ -72,15 +71,9 @@ static void* v2g_ctx_eventloop(void* data) {
     struct v2g_context* ctx = static_cast<struct v2g_context*>(data);
 
     while (!ctx->shutdown) {
-        int rv;
-
-        rv = event_base_loop(ctx->event_base, 0);
+        int rv = event_base_loop(ctx->event_base, EVLOOP_NO_EXIT_ON_EMPTY);
         if (rv == -1)
             break;
-
-        /* if no events are registered, restart looping */
-        if (rv == 1)
-            sleep(1); /* FIXME this is bad since we actually do busy-waiting here */
     }
 
     return NULL;
@@ -340,6 +333,7 @@ struct v2g_context* v2g_ctx_create(ISO15118_chargerImplBase* p_chargerImplBase,
 
 free_out:
     if (ctx->event_base) {
+        ctx->shutdown = true;
         event_base_loopbreak(ctx->event_base);
         event_base_free(ctx->event_base);
     }
@@ -351,6 +345,7 @@ free_out:
 
 void v2g_ctx_free(struct v2g_context* ctx) {
     if (ctx->event_base) {
+        ctx->shutdown = true;
         event_base_loopbreak(ctx->event_base);
         event_base_free(ctx->event_base);
     }
